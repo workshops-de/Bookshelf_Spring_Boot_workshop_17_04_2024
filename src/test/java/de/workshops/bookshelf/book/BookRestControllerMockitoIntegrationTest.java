@@ -3,7 +3,6 @@ package de.workshops.bookshelf.book;
 import static org.hamcrest.Matchers.hasSize;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
