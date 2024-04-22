@@ -7,15 +7,24 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@SpringBootTest
+@WebMvcTest(
+    controllers = BookRestController.class,
+    includeFilters = @ComponentScan.Filter(
+        type = FilterType.ANNOTATION,
+        classes = ConfigurationProperties.class
+    )
+)
 @AutoConfigureMockMvc
 class BookRestControllerMockitoIntegrationTest {
 
@@ -28,13 +37,7 @@ class BookRestControllerMockitoIntegrationTest {
   @Test
   void getAllBooks() throws Exception {
     List<Book> mockedBookList = new ArrayList<>();
-    mockedBookList.add(
-        new Book(
-            "Clean Code",
-            "Das einzige praxisnahe Buch, mit dem Sie lernen, guten Code zu schreiben!",
-            "Robert C. Martin",
-            "978-3826655487")
-    );
+    mockedBookList.add(new Book());
     Mockito.when(bookService.getAllBooks()).thenReturn(mockedBookList);
 
     mockMvc.perform(MockMvcRequestBuilders.get("/book"))

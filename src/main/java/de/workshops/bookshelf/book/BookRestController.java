@@ -41,4 +41,10 @@ class BookRestController {
     List<Book> searchBooks(@RequestBody @Valid BookSearchRequest bookSearchRequest) {
         return bookService.searchBooks(bookSearchRequest);
     }
+
+    @PostMapping
+    Book createBook(@RequestBody Book book) {
+        return bookService.createBook(book);
+    }
+
 }

@@ -27,13 +27,7 @@ class BookRestControllerMockitoTest {
     log.debug("Running the getAllBooks() test method.");
 
     List<Book> mockedBookList = new ArrayList<>();
-    mockedBookList.add(
-        new Book(
-            "Clean Code",
-            "Das einzige praxisnahe Buch, mit dem Sie lernen, guten Code zu schreiben!",
-            "Robert C. Martin",
-            "978-3826655487")
-    );
+    mockedBookList.add(new Book());
     Mockito.when(bookService.getAllBooks()).thenReturn(mockedBookList);
 
     assertNotNull(bookRestController.getAllBooks());

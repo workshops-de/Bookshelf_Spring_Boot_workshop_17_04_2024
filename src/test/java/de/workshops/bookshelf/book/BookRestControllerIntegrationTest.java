@@ -7,12 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -32,6 +37,15 @@ class BookRestControllerIntegrationTest {
 
   @Autowired
   private BookRestController bookRestController;
+
+  @TestConfiguration
+  static class JacksonTestConfiguration {
+
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
+      return builder -> builder.featuresToEnable(SerializationFeature.INDENT_OUTPUT);
+    }
+  }
 
   @Test
   void getAllBooks() throws Exception {
@@ -60,12 +74,55 @@ class BookRestControllerIntegrationTest {
     RestAssuredMockMvc.standaloneSetup(bookRestController);
     RestAssuredMockMvc.
         given().
-          log().all().
+        log().all().
         when().
-          get("/book").
+        get("/book").
         then().
-          log().all().
-          statusCode(200).
-          body("author[0]", equalTo("Erich Gamma"));
+        log().all().
+        statusCode(200).
+        body("author[0]", equalTo("Erich Gamma"));
+  }
+
+
+  @Test
+  void createBook() throws Exception {
+    // arrange
+    String author = "Eric Evans";
+    String title = "Domain-Driven Design: Tackling Complexity in the Heart of Software";
+    String isbn = "978-0321125217";
+    String description = "This is not a book about specific technologies. It offers readers a systematic approach to domain-driven design, presenting an extensive set of design best practices, experience-based techniques, and fundamental principles that facilitate the development of software projects facing complex domains.";
+
+    Book expectedBook = new Book();
+    expectedBook.setAuthor(author);
+    expectedBook.setTitle(title);
+    expectedBook.setIsbn(isbn);
+    expectedBook.setDescription(description);
+
+    // act
+    var mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/book")
+            .content(
+                """
+                {
+                    "isbn": "%s",
+                    "title": "%s",
+                    "author": "%s",
+                    "description": "%s"
+                }
+                """
+                .formatted(
+                    isbn,
+                    title,
+                    author,
+                    description
+                )
+            )
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andReturn();
+    String jsonPayload = mvcResult.getResponse().getContentAsString();
+
+    // assert
+    Book book = objectMapper.readValue(jsonPayload, Book.class);
+    assertEquals(expectedBook, book);
   }
 }

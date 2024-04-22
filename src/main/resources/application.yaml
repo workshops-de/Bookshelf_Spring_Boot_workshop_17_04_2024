@@ -1,0 +1,7 @@
+application:
+  title: '@project.name@'
+  version: '@project.version@'
+
+bookshelf:
+  some-number: 11
+  some-text: More information
