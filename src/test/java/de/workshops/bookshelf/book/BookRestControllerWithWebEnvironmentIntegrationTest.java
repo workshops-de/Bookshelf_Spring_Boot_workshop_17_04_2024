@@ -23,6 +23,7 @@ class BookRestControllerWithWebEnvironmentIntegrationTest {
   void testWithRestAssured() {
     RestAssured.
         given().
+          auth().basic("dbUser", "workshops").
           log().all().
         when().
           get("/book").

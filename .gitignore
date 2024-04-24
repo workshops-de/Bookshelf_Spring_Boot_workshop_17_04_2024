@@ -57,6 +57,9 @@ build/
 ### VS Code ###
 .vscode/
 
+### Data ###
+/data/
+
 ### H2 database files ###
 *.db
 
